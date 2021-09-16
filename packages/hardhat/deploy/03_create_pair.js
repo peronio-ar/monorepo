@@ -5,7 +5,8 @@ const { ethers } = require("hardhat");
 
 module.exports = async ({ deployments, network }) => {
   console.info("Deploying Uniswap");
-  const { deploy, getArtifact } = deployments;
+  const { deploy, getArtifact, save } = deployments;
+
   const { deployer } = await getNamedAccounts();
   const addresses = {
     usdc: utils.getDeployedContract("USDC", network.name).address,
@@ -32,14 +33,10 @@ module.exports = async ({ deployments, network }) => {
 
   const pairArtifact = await getArtifact("UniswapV2Pair");
 
-  const deploymentsDir = `./deployments/${network.name}/PairPeronioUSDC.json`;
-  fs.writeFileSync(
-    deploymentsDir,
-    JSON.stringify(
-      Object.assign({ address: addresses.pair }, pairArtifact),
-      null,
-      2
-    )
+  // Save Deployment
+  save(
+    "PairPeronioUSDC",
+    Object.assign({ address: addresses.pair }, pairArtifact)
   );
 };
 
