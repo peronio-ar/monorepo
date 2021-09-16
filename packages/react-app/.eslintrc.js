@@ -29,5 +29,6 @@ module.exports = {
     "no-nested-ternary": "off",
     "no-restricted-syntax": "off",
     "no-plusplus": "off",
+    "no-use-before-define": "off",
   },
 };
