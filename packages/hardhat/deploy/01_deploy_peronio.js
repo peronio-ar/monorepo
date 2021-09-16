@@ -1,16 +1,6 @@
 // deploy/01_deploy_contracts.js
-
-const fs = require("fs");
+const utils = require("../utils");
 const { ethers } = require("hardhat");
-
-const deploymentsDir = "./deployments";
-
-function getDeployedContract(contractName, newtworkName) {
-  const contract = fs
-    .readFileSync(`${deploymentsDir}/${newtworkName}/${contractName}.json`)
-    .toString();
-  return JSON.parse(contract);
-}
 
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
@@ -21,7 +11,7 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     usdcAddress = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
   } else {
     console.info("Using USDC Mock");
-    usdcAddress = getDeployedContract("USDC", network.name).address;
+    usdcAddress = utils.getDeployedContract("USDC", network.name).address;
   }
 
   await deploy("Peronio", {

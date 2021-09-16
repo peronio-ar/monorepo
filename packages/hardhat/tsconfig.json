@@ -1,5 +1,10 @@
 {
-  "include": ["src/**/*.ts", "test/**/*.ts", "scripts/**/*.ts"],
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts",
+    "scripts/**/*.ts",
+    "utils/**/*.ts"
+  ],
   "exclude": ["node_modules"],
   "files": ["hardhat.config.ts"],
   "compilerOptions": {
