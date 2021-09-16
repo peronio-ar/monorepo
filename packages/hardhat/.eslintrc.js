@@ -1,24 +1,20 @@
 module.exports = {
+  root: true,
   env: {
-    mocha: true,
+    node: true,
   },
-  extends: ["airbnb", "plugin:prettier/recommended"],
-  plugins: ["babel"],
+  parser: "@typescript-eslint/parser",
+  parserOptions: {
+    project: "./tsconfig.eslint.json",
+  },
+  plugins: ["@typescript-eslint"],
+  extends: [
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+  ],
+  ignorePatterns: ["build/**", "contract-bindings/**", "cache/**"],
   rules: {
-    "prettier/prettier": ["error"],
-    "import/extensions": [
-      "error",
-      "ignorePackages",
-      {
-        js: "never",
-        ts: "never",
-      },
-    ],
-    "import/prefer-default-export": "off",
-    "prefer-destructuring": "off",
-    "prefer-template": "off",
-    "no-console": "off",
-    "func-names": "off",
-    "import/no-dynamic-require": "off",
+    "@typescript-eslint/explicit-function-return-type": "error",
   },
 };
