@@ -1,4 +1,5 @@
 // deploy/00_deploy_usdc_mock.js
+const { ethers } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
   if (network.name === "matic") {
@@ -9,6 +10,12 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
 
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
+
+  await network.provider.send("hardhat_setBalance", [
+    deployer,
+    "0x" + (100000 >>> 0).toString(2),
+  ]);
+
   await deploy("YourContract", {
     // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
     from: deployer,
@@ -16,12 +23,11 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     log: true,
   });
 
-  console.info("Deploy USDC mock");
   await deploy("USDC", {
-    contract: "ERC20",
+    contract: "USDCMock",
     from: deployer,
     log: true,
-    args: ["USD Coin", "USDC"],
+    args: [ethers.utils.parseEther("10000")],
   });
 };
 module.exports.tags = ["YourContract", "USDC"];

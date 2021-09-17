@@ -1,6 +1,7 @@
 import fs from 'fs';
+import { networkConfig } from '../helper-hardhat-config';
+
 const deploymentsDir = './deployments';
-const USDCMainnetAddress = '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174';
 
 const getJSON = (filePath: string) => {
   const contract = fs.readFileSync(filePath).toString();
@@ -13,7 +14,7 @@ const getDeployedContract = (contractName: string, newtworkName: string) => {
 
 const getMaticUSDCAddress = (networkName: string) => {
   return networkName === 'matic'
-    ? USDCMainnetAddress
+    ? networkConfig
     : getDeployedContract('USDC', networkName).address;
 };
 

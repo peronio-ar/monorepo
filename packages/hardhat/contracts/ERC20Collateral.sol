@@ -22,12 +22,12 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
         require(!initialized, 'Contract already initialized');
         ERC20 collateralContract = ERC20(collateral_contract);
         
-        collateralContract.approve(address(this), collateral * 10 ** decimals());
+        collateralContract.approve(address(this), collateral);
         
         require(collateralContract.decimals() == decimals(), 'Decimals from collateral and this ERC20 must match');
         
-        collateralContract.transferFrom(msg.sender, address(this), collateral * 10 ** decimals());
-        _mint(msg.sender, starting_ratio * collateral * 10 ** decimals());
+        collateralContract.transferFrom(msg.sender, address(this), collateral);
+        _mint(msg.sender, starting_ratio * collateral);
         initialized = true;
     }
     

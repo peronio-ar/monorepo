@@ -31,12 +31,16 @@ function mnemonic() {
   return '';
 }
 
+const Private_Key =
+  '4d0b2f81ad8500f469c134437cdabdd72898b31fbb144b33893e701fc18622de';
+
 module.exports = {
   defaultNetwork,
 
   networks: {
     localhost: {
       url: 'http://localhost:8545',
+      accounts: [`${Private_Key}`],
       /*      
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
