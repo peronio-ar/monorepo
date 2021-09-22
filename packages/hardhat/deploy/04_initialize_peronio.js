@@ -6,8 +6,6 @@ const { defaultValues } = require("../helper-hardhat-config");
 
 module.exports = async ({ deployments, network }) => {
   console.info("Initializing Peronio contract");
-  const { deploy, getArtifact, get } = deployments;
-  const { deployer } = await getNamedAccounts();
 
   const usdcAddress = utils.getDeployedContract("USDC", network.name).address;
   const peronioAddress = utils.getDeployedContract(
@@ -20,10 +18,6 @@ module.exports = async ({ deployments, network }) => {
   const peronio = await ethers.getContractAt("ERC20Collateral", peronioAddress);
 
   await usdc.approve(peronioAddress, defaultValues.collateralAmount);
-  await usdc.transfer(peronioAddress, defaultValues.collateralAmount);
-  const balance = await usdc.balanceOf(peronioAddress);
-
-  // console.info("balance", ethers.utils.formatEther(ethers.balance));
   try {
     await peronio.initiliaze(
       defaultValues.collateralAmount,

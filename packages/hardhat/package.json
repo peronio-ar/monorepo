@@ -40,7 +40,7 @@
     "test": "hardhat test --network hardhat",
     "compile": "hardhat compile",
     "console": "hardhat console",
-    "deploy": "hardhat deploy --export-all ../react-app/src/contracts/hardhat_contracts.json",
+    "deploy": "hardhat deploy --export-all ../../../frontend-lite/src/contracts/hardhat_contracts.json",
     "postdeploy": "hardhat run scripts/publish.js",
     "watch": "node scripts/watch.js",
     "accounts": "hardhat accounts",
