@@ -1,21 +1,18 @@
 import fs from 'fs';
-import { networkConfig } from '../helper-hardhat-config';
+// import { networkConfig } from '../helper-hardhat-config';
 
 const deploymentsDir = './deployments';
 
-const getJSON = (filePath: string) => {
+const getJSON = (filePath: string): any => {
   const contract = fs.readFileSync(filePath).toString();
   return JSON.parse(contract);
 };
 
-const getDeployedContract = (contractName: string, newtworkName: string) => {
+const getDeployedContract = (
+  contractName: string,
+  newtworkName: string
+): any => {
   return getJSON(`${deploymentsDir}/${newtworkName}/${contractName}.json`);
 };
 
-const getMaticUSDCAddress = (networkName: string) => {
-  return networkName === 'matic'
-    ? networkConfig
-    : getDeployedContract('USDC', networkName).address;
-};
-
-export { getDeployedContract, getJSON, getMaticUSDCAddress };
+export { getDeployedContract, getJSON };

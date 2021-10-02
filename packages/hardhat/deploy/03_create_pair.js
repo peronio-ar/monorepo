@@ -5,9 +5,8 @@ const { ethers } = require("hardhat");
 
 module.exports = async ({ deployments, network }) => {
   console.info("Deploying Uniswap");
-  const { deploy, getArtifact, save } = deployments;
+  const { getArtifact, save } = deployments;
 
-  const { deployer } = await getNamedAccounts();
   const addresses = {
     usdc: utils.getDeployedContract("USDC", network.name).address,
     peronio: utils.getDeployedContract("Peronio", network.name).address,

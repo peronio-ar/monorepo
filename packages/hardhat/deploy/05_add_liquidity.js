@@ -50,23 +50,6 @@ module.exports = async ({ deployments, network }) => {
   );
 
   console.info("Added Liquidity");
-
-  //   const usdcAddress = utils.getDeployedContract("Factory", network.name).address;
-  //   const peronioAddress = utils.getDeployedContract(
-  //     "Peronio",
-  //     network.name
-  //   ).address;
-
-  //   // Contracts
-  //   const usdc = await ethers.getContractAt("IERC20", usdcAddress);
-  //   const peronio = await ethers.getContractAt("UniswapV2Factory", peronioAddress);
-
-  //   await usdc.approve(peronioAddress, COLLATERAL_AMOUNT);
-  //   await usdc.transfer(peronioAddress, COLLATERAL_AMOUNT);
-  //   const balance = await usdc.balanceOf(peronioAddress);
-
-  //   // console.info("balance", ethers.utils.formatEther(ethers.balance));
-  //   await peronio.initiliaze(COLLATERAL_AMOUNT, COLLATERAL_RATIO);
 };
 
 module.exports.tags = ["Pair"];

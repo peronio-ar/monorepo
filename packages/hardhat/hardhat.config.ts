@@ -1,4 +1,5 @@
 // import { task } from 'hardhat/config';
+import 'dotenv/config';
 
 // import utils from 'ethers';
 import fs from 'fs';
@@ -16,7 +17,8 @@ import '@nomiclabs/hardhat-ethers';
 //
 const defaultNetwork = 'localhost';
 
-// const mainnetGwei = 21;
+const gasPrice = process.env.GAS_PRICE;
+const PRIVATE_KEY = process.env.PRIVATE_KEY ?? '';
 
 function mnemonic() {
   try {
@@ -31,16 +33,13 @@ function mnemonic() {
   return '';
 }
 
-const Private_Key =
-  '4d0b2f81ad8500f469c134437cdabdd72898b31fbb144b33893e701fc18622de';
-
 module.exports = {
   defaultNetwork,
-
+  gasPrice,
   networks: {
     localhost: {
       url: 'http://localhost:8545',
-      accounts: [`${Private_Key}`],
+      accounts: [`${PRIVATE_KEY}`],
       /*      
         notice no mnemonic here? it will just use account 0 of the hardhat node to deploy
         (you can put in a mnemonic here to set the deployer locally)
@@ -50,9 +49,11 @@ module.exports = {
     matic: {
       url: 'https://rpc-mainnet.maticvigil.com/',
       gasPrice: 1000000000,
-      accounts: {
-        mnemonic: mnemonic(),
-      },
+      accounts: [`${PRIVATE_KEY}`],
+      // accounts: {
+      //   mnemonic: mnemonic(),
+      // },
+      usdcToken: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
     },
     mumbai: {
       url: 'https://rpc-mumbai.maticvigil.com/',

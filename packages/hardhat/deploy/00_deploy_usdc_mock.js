@@ -2,32 +2,37 @@
 const { ethers } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
-  if (network.name === "matic") {
-    console.info("MATIC main network detected");
-    console.info("Skipping USDC mock contract");
-    return;
-  }
-
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
+  const { getArtifact, save } = deployments;
 
-  await network.provider.send("hardhat_setBalance", [
-    deployer,
-    "0x" + (100000 >>> 0).toString(2),
-  ]);
+  if (network.name === "localhost") {
+    console.info("Funding hardhat");
+    await network.provider.send("hardhat_setBalance", [
+      deployer,
+      "0x" + (100000 >>> 0).toString(2),
+    ]);
+  }
 
-  await deploy("YourContract", {
-    // Learn more about args here: https://www.npmjs.com/package/hardhat-deploy#deploymentsdeploy
-    from: deployer,
-    //args: [ "Hello", ethers.utils.parseEther("1.5") ],
-    log: true,
-  });
+  if (network.config.usdcToken) {
+    console.info("USDC Token detected");
+    console.info("Skipping USDC mock contract deploy");
+
+    const usdcArtifact = await getArtifact("USDCMock");
+
+    // Save Deployment
+    save(
+      "USDC",
+      Object.assign({ address: network.config.usdcToken }, usdcArtifact)
+    );
+    return;
+  }
 
   await deploy("USDC", {
     contract: "USDCMock",
     from: deployer,
     log: true,
-    args: [ethers.utils.parseEther("10000")],
+    args: [ethers.utils.parseUnits("10000", 6)],
   });
 };
 module.exports.tags = ["YourContract", "USDC"];

@@ -21,6 +21,10 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     constructor(string memory name_, string memory symbol_, address collateral_contract_) ERC20(name_, symbol_) {
         collateral_contract = collateral_contract_;
     }
+
+    function decimals() public view virtual override returns (uint8) {
+        return 6;
+    }
     
     function initiliaze(uint collateral, uint starting_ratio) public {
         require(!initialized, 'Contract already initialized');

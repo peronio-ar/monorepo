@@ -5,7 +5,8 @@ const { ethers } = require("hardhat");
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  const usdcAddress = utils.getMaticUSDCAddress(network.name);
+
+  const usdcAddress = utils.getDeployedContract("USDC", network.name).address;
 
   await deploy("Peronio", {
     contract: "ERC20Collateral",
