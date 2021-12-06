@@ -53,7 +53,7 @@ module.exports = {
       // accounts: {
       //   mnemonic: mnemonic(),
       // },
-      usdcToken: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      usdtToken: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
       amUsdtToken: '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
     },
     mumbai: {
