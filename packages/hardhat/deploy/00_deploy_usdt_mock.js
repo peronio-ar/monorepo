@@ -1,4 +1,4 @@
-// deploy/00_deploy_usdc_mock.js
+// deploy/00_deploy_usdt_mock.js
 const { ethers } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
@@ -14,20 +14,20 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     ]);
   }
 
-  if (network.config.usdcToken) {
+  if (network.config.usdtToken) {
     console.info("USDT Token detected");
     console.info("Skipping USDT mock contract deploy");
 
-    const usdcArtifact = await getArtifact("USDTMock");
+    const usdtArtifact = await getArtifact("USDTMock");
 
     // Save Deployment
     save(
       "USDT",
-      Object.assign({ address: network.config.usdcToken }, usdcArtifact)
+      Object.assign({ address: network.config.usdToken }, usdtArtifact)
     );
     save(
       "amUSDT",
-      Object.assign({ address: network.config.amUsdtToken }, usdcArtifact)
+      Object.assign({ address: network.config.amUsdtToken }, usdtArtifact)
     );
     return;
   }
