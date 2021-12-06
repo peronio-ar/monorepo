@@ -11,7 +11,7 @@ module.exports = async ({ deployments, network }) => {
 
   // Get Artifacts
   const peronioArtifact = await get("Peronio");
-  const usdcArtifact = await get("USDC");
+  const usdtArtifact = await get("USDT");
   const routerArtifact = await get("Router");
 
   // Get Contracts on chain
@@ -19,9 +19,9 @@ module.exports = async ({ deployments, network }) => {
     peronioArtifact.abi,
     peronioArtifact.address
   );
-  const usdc = await ethers.getContractAt(
-    usdcArtifact.abi,
-    usdcArtifact.address
+  const usdt = await ethers.getContractAt(
+    usdtArtifact.abi,
+    usdtArtifact.address
   );
   const router = await ethers.getContractAt(
     routerArtifact.abi,
@@ -29,31 +29,31 @@ module.exports = async ({ deployments, network }) => {
   );
 
   // Set values
-  const totalUSDC = defaultValues.collateralAmount;
+  const totalUSDT = defaultValues.collateralAmount;
   const totalPER = defaultValues.collateralAmount.mul(
     defaultValues.collateralRatio
   );
 
   // Set approval limit
-  await usdc.approve(routerArtifact.address, totalUSDC);
+  await usdt.approve(routerArtifact.address, totalUSDT);
   await peronio.approve(routerArtifact.address, totalPER);
 
   console.info("DEBUG");
   console.dir({
-    usdAddress: usdcArtifact.address,
+    usdAddress: usdtArtifact.address,
     peronioAddress: peronioArtifact.address,
-    totalUSDC,
+    totalUSDT,
     totalPER,
-    totalUSDC,
+    totalUSDT,
     totalPER,
     deployer,
   });
   await router.addLiquidity(
-    usdcArtifact.address,
+    usdtArtifact.address,
     peronioArtifact.address,
-    totalUSDC,
+    totalUSDT,
     totalPER,
-    totalUSDC,
+    totalUSDT,
     totalPER,
     deployer,
     9999999999

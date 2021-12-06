@@ -15,24 +15,35 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
   }
 
   if (network.config.usdcToken) {
-    console.info("USDC Token detected");
-    console.info("Skipping USDC mock contract deploy");
+    console.info("USDT Token detected");
+    console.info("Skipping USDT mock contract deploy");
 
-    const usdcArtifact = await getArtifact("USDCMock");
+    const usdcArtifact = await getArtifact("USDTMock");
 
     // Save Deployment
     save(
-      "USDC",
+      "USDT",
       Object.assign({ address: network.config.usdcToken }, usdcArtifact)
+    );
+    save(
+      "amUSDT",
+      Object.assign({ address: network.config.amUsdtToken }, usdcArtifact)
     );
     return;
   }
 
-  await deploy("USDC", {
+  await deploy("USDT", {
     contract: "USDCMock",
     from: deployer,
     log: true,
     args: [ethers.utils.parseUnits("10000", 6)],
   });
+
+  await deploy("amUSDT", {
+    contract: "USDCMock",
+    from: deployer,
+    log: true,
+    args: [0],
+  });
 };
-module.exports.tags = ["YourContract", "USDC"];
+module.exports.tags = ["YourContract", "USDT"];

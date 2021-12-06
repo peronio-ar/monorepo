@@ -8,20 +8,20 @@ module.exports = async ({ deployments, network }) => {
   const { getArtifact, save } = deployments;
 
   const addresses = {
-    usdc: utils.getDeployedContract("USDC", network.name).address,
+    usdt: utils.getDeployedContract("USDT", network.name).address,
     peronio: utils.getDeployedContract("Peronio", network.name).address,
     factory: utils.getDeployedContract("Factory", network.name).address,
     router: utils.getDeployedContract("Router", network.name).address,
   };
   const contracts = {
-    usdc: await ethers.getContractAt("IERC20", addresses.usdc),
+    usdt: await ethers.getContractAt("IERC20", addresses.usdt),
     peronio: await ethers.getContractAt("ERC20Collateral", addresses.peronio),
     factory: await ethers.getContractAt("UniswapV2Factory", addresses.factory),
     router: await ethers.getContractAt("UniswapV2Router02", addresses.factory),
   };
 
   const currentPair = await contracts.factory.getPair(
-    addresses.usdc,
+    addresses.usdt,
     addresses.peronio
   );
 
@@ -31,15 +31,15 @@ module.exports = async ({ deployments, network }) => {
   }
 
   try {
-    await contracts.factory.createPair(addresses.usdc, addresses.peronio);
-    console.info("Created pair PER/USDC");
+    await contracts.factory.createPair(addresses.usdt, addresses.peronio);
+    console.info("Created pair PER/USDT");
   } catch (e) {
     console.error("Error while trying to create pair");
     throw e;
   }
 
   addresses.pair = await contracts.factory.getPair(
-    contracts.usdc.address,
+    contracts.usdt.address,
     contracts.peronio.address
   );
 
@@ -48,7 +48,7 @@ module.exports = async ({ deployments, network }) => {
   console.info("Pair created on address:", addresses.pair);
   // Save Deployment
   save(
-    "PairPeronioUSDC",
+    "PairPeronioUSDT",
     Object.assign({ address: addresses.pair }, pairArtifact)
   );
 };

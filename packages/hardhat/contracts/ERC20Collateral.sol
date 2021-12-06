@@ -18,13 +18,13 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
 
     // External Contracts
     IAaveIncentivesController public immutable aaveContract; // Aave Contract
-    IERC20 public immutable wMaticContract; // WMatic ERC20
 
     // Local Router
-    IUniswapV2Router01 public RouterContract;
+    address public immutable uniswap_router_address;
 
     // Aave lending pool
-    address public constant LENDING_POOL = 0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf;
+    address public immutable lending_pool_address;
+    address public immutable wmatic_address; // WMatic ERC20 address
 
     // Markup
     uint8 public constant markup_decimals = 4;
@@ -32,6 +32,7 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     
     // Underlying asset address (USDT)
     address public immutable collateral_address;
+    address public immutable collateral_aave_address;
     
     // Initialization can only be run once
     bool public initialized = false;
@@ -42,12 +43,23 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     event Withdrawal(address to, uint collateralAmount, uint tokenAmount);
 
     // Collateral without decimals
-    constructor(string memory name_, string memory symbol_, address collateral_address_) ERC20(name_, symbol_) {
-        aaveContract = IAaveIncentivesController(0x357D51124f59836DeD84c8a1730D72B749d8BC23); // aave incentives controller
-        wMaticContract = IERC20(0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270);
-        RouterContract =  IUniswapV2Router01(0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff); // Quickswap
+    constructor(string memory name_, string memory symbol_, address collateral_address_, address collateral_aave_address_) ERC20(name_, symbol_) {
+        // WMatic ERC20 address
+        wmatic_address = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
 
-        collateral_address = collateral_address_;
+        // AAVE Lending Pool Address
+        lending_pool_address = 0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf;
+
+        // Collateral and aaToken addresses
+        collateral_address = collateral_address_; //USDT
+        collateral_aave_address=collateral_aave_address_; //amUSDT
+
+        // Uniswap Router address (Local)
+        uniswap_router_address = 0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff;
+
+        // AAVE Incentives Controller
+        aaveContract = IAaveIncentivesController(0x357D51124f59836DeD84c8a1730D72B749d8BC23);
+
     }
 
     // 6 Decimals
@@ -56,23 +68,29 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     }
     
     // Sets initial minting. Cna only be runned once
-    function initiliaze(uint collateral, uint starting_ratio) public {
+    function initiliaze(uint collateral, uint256 starting_ratio) public {
         require(!initialized, 'Contract already initialized');
         IERC20 collateralContract = IERC20(collateral_address);
         
         require(ERC20(collateral_address).decimals() == decimals(), 'Decimals from collateral and this ERC20 must match');
         
         collateralContract.safeTransferFrom(msg.sender, address(this), collateral);
-        _mint(msg.sender, starting_ratio * collateral);
+        _mint(msg.sender, starting_ratio.mul(collateral));
         initialized = true;
         emit Initialized(msg.sender, collateral, starting_ratio);
     }
     
-    // Received collateral and mints the proportional tokens
+    // Receive Collateral token and mints the proportional tokens
     function mint(address to, uint amount) public { //Amount for this ERC20
-        // Transfer collateral from users wallet to current contract
+        // Calculate buying price (Collateral ratio + Markup)
         uint collateral_amount = buyingPrice() * amount / 10 ** decimals();
+
+        // Transfer Collateral Token (USDT) to this contract
         IERC20(collateral_address).safeTransferFrom(msg.sender, address(this), collateral_amount);
+
+        // Zaps collateral into Collateral AAVE Token amUSDT
+        zapCollateral(amount);
+
         _mint(to, amount);
         emit Minted(msg.sender, collateral_amount, amount);
     }
@@ -80,12 +98,28 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     // Receives Main token burns it and returns Collateral Token proportionally
     function withdraw(address to, uint amount) public { //Amount for this ERC20
         // Transfer collateral back to user wallet to current contract
-        uint collateralAmount = collateralRatio() * amount / 10 ** decimals();
+        uint collateralAmount = collateralRatio().mul(amount) / 10 ** decimals();
+
+        // Claim USDT in exchange of AAVE Token amUSDT
+        unzapCollateral(amount);
+
+        // Transfer back Collateral Token (USDT) the user
         IERC20(collateral_address).safeTransfer(to, collateralAmount);
-        
+
         //Burn tokens
         _burn(msg.sender, amount);
+
         emit Withdrawal(msg.sender, collateralAmount, amount);
+    }
+
+    // Zaps collateral into Collateral AAVE Token amUSDT
+    function zapCollateral(uint amount) private {
+        // Deposit USDT to amUSDT
+    }
+
+    // Claim USDT in exchange of AAVE Token amUSDT
+    function unzapCollateral(uint amount) private {
+        // Withdraw USDT in exchange of me giving amUSDT
     }
     
     // Sets markup for minting function
@@ -93,31 +127,67 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
         markup = val;
     }
     
-
-    function collateralBalance() external view returns (uint){
+    // Gets current Collateral Balance (USDT) in vault
+    function collateralBalance() public view returns (uint256){
         return ERC20(collateral_address).balanceOf(address(this));
     }
     
+    // Gets current ratio: Collateral Balance in vault / Total Supply
     function collateralRatio() public view returns (uint){
-        uint currentCollateral = ERC20(collateral_address).balanceOf(address(this));
-        return (currentCollateral * 10 ** decimals()) / this.totalSupply();
+        return (collateralBalance().mul(10) ** decimals()) / this.totalSupply();
     }
 
+    // Gets current ratio: Total Supply / Collateral Balance in vault
     function collateralPrice() public view returns (uint) {
-        return (this.totalSupply() * 10 ** decimals()) / ERC20(collateral_address).balanceOf(address(this));
+        return (this.totalSupply().mul(10) ** decimals()) / collateralBalance();
     }
 
-    function buyingPrice() public view returns (uint) {
+    // Gets current ratio: collateralRatio + markup
+    function buyingPrice() public view returns (uint256) {
         uint base_price = collateralRatio();
-        uint fee = (base_price * markup) / (10 ** (markup_decimals + 2));
+        uint fee = (base_price.mul(markup)) / (10 ** (markup_decimals + 2));
         return base_price + fee;
     }
 
-    function claimAaveRewards() public {
-        
+    // Claim AAVE Rewards (WMATIC) into this contract
+    function claimAaveRewards() public onlyOwner {
+        // we're only checking for one asset (Token which is an interest bearing amToken)
+        address[] memory rewardsPath = new address[](1);
+                rewardsPath[0] = collateral_aave_address;
+
+        // check how many matic are available to claim
+        uint256 rewardBalance = aaveContract.getRewardsBalance(rewardsPath, address(this));
+
+        // we should only claim rewards if its over 0.
+        if(rewardBalance > 2){
+            aaveContract.claimRewards(rewardsPath, rewardBalance, address(this));
+        }
     }
 
-    function harvestMaticIntoToken() public {
+    // Swap MATIC into USDT
+    function harvestMaticIntoToken() public onlyOwner {
+        // claims any available Matic from the Aave Incentives contract.
+        IERC20 wMaticContract = IERC20(wmatic_address);
+        uint256 _wmaticBalance = wMaticContract.balanceOf(address(this));
 
+        if(_wmaticBalance > 2) {
+            address[] memory path = new address[](2);
+                path[0] = wmatic_address;
+                path[1] = collateral_address;
+    
+            wMaticContract.safeApprove(uniswap_router_address, _wmaticBalance);
+            
+            // if successful this should increase the total MiMatic held by contract
+            IUniswapV2Router01(uniswap_router_address).swapExactTokensForTokens(_wmaticBalance, uint256(0), path, address(this), block.timestamp.add(1800));
+            
+            uint256 newBalance = IERC20(collateral_address).balanceOf(address(this));
+
+            // Just being safe
+            IERC20(collateral_address).safeApprove(lending_pool_address, 0);
+            // Approve Transfer _amount usdt to lending pool
+            IERC20(collateral_address).safeApprove(lending_pool_address, newBalance);
+            // then we need to deposit it into the lending pool
+            ILendingPool(lending_pool_address).deposit(collateral_address, newBalance, address(this), 0);
+        }
     }
 }

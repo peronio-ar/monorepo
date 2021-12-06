@@ -54,6 +54,7 @@ module.exports = {
       //   mnemonic: mnemonic(),
       // },
       usdcToken: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+      amUsdtToken: '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
     },
     mumbai: {
       url: 'https://rpc-mumbai.maticvigil.com/',

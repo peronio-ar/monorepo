@@ -6,7 +6,11 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const usdcAddress = utils.getDeployedContract("USDC", network.name).address;
+  const usdtAddress = utils.getDeployedContract("USDT", network.name).address;
+  const amUsdtAddress = utils.getDeployedContract(
+    "amUSDT",
+    network.name
+  ).address;
 
   await deploy("Peronio", {
     contract: "ERC20Collateral",

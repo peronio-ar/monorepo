@@ -9,14 +9,14 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
 
   const { deployer } = await getNamedAccounts();
 
-  const usdcAddress = utils.getDeployedContract("USDC", network.name).address;
+  const usdtAddress = utils.getDeployedContract("USDT", network.name).address;
   const peronioAddress = utils.getDeployedContract(
     "Peronio",
     network.name
   ).address;
 
   // Contracts
-  const usdc = await ethers.getContractAt("IERC20", usdcAddress);
+  const usdt = await ethers.getContractAt("IERC20", usdtAddress);
   const peronio = await ethers.getContractAt("ERC20Collateral", peronioAddress);
 
   // Check if contract is already initialized
@@ -27,17 +27,17 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     return;
   }
 
-  console.info("Checking if there is enough USDC...");
-  const usdcBalance = await usdc.balanceOf(deployer);
-  if (usdcBalance.lt(defaultValues.collateralAmount)) {
-    throw Error("Not enough USDC funds");
+  console.info("Checking if there is enough USDT...");
+  const usdtBalance = await usdt.balanceOf(deployer);
+  if (usdtBalance.lt(defaultValues.collateralAmount)) {
+    throw Error("Not enough USDT funds");
   }
   console.info(
-    "Approving USDC " +
+    "Approving USDT " +
       ethers.utils.formatUnits(defaultValues.collateralAmount, 6) +
       " to be spent"
   );
-  await usdc.approve(peronioAddress, defaultValues.collateralAmount);
+  await usdt.approve(peronioAddress, defaultValues.collateralAmount);
   try {
     console.info("Initializing Contract...");
     await peronio.initiliaze(
