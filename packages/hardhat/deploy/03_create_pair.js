@@ -4,7 +4,7 @@ const fs = require("fs");
 const { ethers } = require("hardhat");
 
 module.exports = async ({ deployments, network }) => {
-  console.info("Deploying Uniswap");
+  console.info("Creating Pair");
   const { getArtifact, save } = deployments;
 
   const addresses = {
@@ -20,17 +20,22 @@ module.exports = async ({ deployments, network }) => {
     router: await ethers.getContractAt("UniswapV2Router02", addresses.factory),
   };
 
+  const currentPair = await contracts.factory.getPair(
+    addresses.usdc,
+    addresses.peronio
+  );
+
+  if (currentPair !== "0x0000000000000000000000000000000000000000") {
+    console.info("Pair already exists");
+    return;
+  }
+
   try {
-    await contracts.factory.createPair(
-      contracts.usdc.address,
-      contracts.peronio.address
-    );
+    await contracts.factory.createPair(addresses.usdc, addresses.peronio);
     console.info("Created pair PER/USDC");
   } catch (e) {
-    if (e.message.indexOf("UniswapV2: PAIR_EXISTS") === -1) {
-      throw e;
-    }
-    console.info("Pair already exists");
+    console.error("Error while trying to create pair");
+    throw e;
   }
 
   addresses.pair = await contracts.factory.getPair(

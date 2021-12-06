@@ -30,7 +30,7 @@ interface IDefaultValues {
 
 const defaultValues: IDefaultValues = {
   collateralAmount: ethers.utils.parseUnits('1', 6),
-  collateralRatio: 182,
+  collateralRatio: parseFloat(process.env.COLLATERAL_RATIO || '1'),
 };
 
 const developmentChains = ['hardhat', 'localhost'];

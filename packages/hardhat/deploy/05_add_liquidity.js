@@ -38,6 +38,16 @@ module.exports = async ({ deployments, network }) => {
   await usdc.approve(routerArtifact.address, totalUSDC);
   await peronio.approve(routerArtifact.address, totalPER);
 
+  console.info("DEBUG");
+  console.dir({
+    usdAddress: usdcArtifact.address,
+    peronioAddress: peronioArtifact.address,
+    totalUSDC,
+    totalPER,
+    totalUSDC,
+    totalPER,
+    deployer,
+  });
   await router.addLiquidity(
     usdcArtifact.address,
     peronioArtifact.address,

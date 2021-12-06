@@ -17,7 +17,7 @@ import '@nomiclabs/hardhat-ethers';
 //
 const defaultNetwork = 'localhost';
 
-const gasPrice = process.env.GAS_PRICE;
+const gasPrice = parseFloat(process.env.GAS_PRICE || '1');
 const PRIVATE_KEY = process.env.PRIVATE_KEY ?? '';
 
 function mnemonic() {
@@ -47,8 +47,8 @@ module.exports = {
       */
     },
     matic: {
-      url: 'https://rpc-mainnet.maticvigil.com/',
-      gasPrice: 1000000000,
+      url: 'https://polygon-mainnet.infura.io/v3/2343217699c44b45851935789f1f89e6',
+      gasPrice: gasPrice * 10 ** 9,
       accounts: [`${PRIVATE_KEY}`],
       // accounts: {
       //   mnemonic: mnemonic(),
