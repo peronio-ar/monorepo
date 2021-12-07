@@ -40,6 +40,10 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
   await usdt.approve(peronioAddress, defaultValues.collateralAmount);
   try {
     console.info("Initializing Contract...");
+    console.dir({
+      collateralAmount: defaultValues.collateralAmount,
+      collateralRatio: defaultValues.collateralRatio,
+    });
     await peronio.initiliaze(
       defaultValues.collateralAmount,
       defaultValues.collateralRatio

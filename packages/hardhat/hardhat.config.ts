@@ -11,6 +11,9 @@ import 'hardhat-deploy';
 
 import '@eth-optimism/hardhat-ovm';
 import '@nomiclabs/hardhat-ethers';
+import '@nomiclabs/hardhat-etherscan';
+
+import './tasks/peronio.js';
 
 //
 // Select the network you want to deploy to here:
@@ -19,6 +22,7 @@ const defaultNetwork = 'localhost';
 
 const gasPrice = parseFloat(process.env.GAS_PRICE || '1');
 const PRIVATE_KEY = process.env.PRIVATE_KEY ?? '';
+const ETHERSCAN_API = process.env.ETHERSCAN_API ?? '';
 
 function mnemonic() {
   try {
@@ -55,6 +59,7 @@ module.exports = {
       // },
       usdtToken: '0xc2132d05d31c914a87c6611c10748aeb04b58e8f',
       amUsdtToken: '0x3Ed3B47Dd13EC9a98b44e6204A523E766B225811',
+      aaveLendingPool: '0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf',
     },
     mumbai: {
       url: 'https://rpc-mumbai.maticvigil.com/',
@@ -70,6 +75,9 @@ module.exports = {
         mnemonic: mnemonic(),
       },
     },
+  },
+  etherscan: {
+    apiKey: ETHERSCAN_API,
   },
   solidity: {
     compilers: [

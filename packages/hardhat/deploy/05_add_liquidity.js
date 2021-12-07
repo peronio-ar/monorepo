@@ -12,6 +12,7 @@ module.exports = async ({ deployments, network }) => {
   // Get Artifacts
   const peronioArtifact = await get("Peronio");
   const usdtArtifact = await get("USDT");
+  const amUsdtArtifact = await get("amUSDT");
   const routerArtifact = await get("Router");
 
   // Get Contracts on chain
@@ -40,14 +41,17 @@ module.exports = async ({ deployments, network }) => {
 
   console.info("DEBUG");
   console.dir({
-    usdAddress: usdtArtifact.address,
+    usdtAddress: usdtArtifact.address,
+    amUsdtAddress: amUsdtArtifact.address,
     peronioAddress: peronioArtifact.address,
+
     totalUSDT,
     totalPER,
     totalUSDT,
     totalPER,
     deployer,
   });
+
   await router.addLiquidity(
     usdtArtifact.address,
     peronioArtifact.address,

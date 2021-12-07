@@ -345,8 +345,6 @@ interface ILendingPool {
   function setReserveInterestRateStrategyAddress(address reserve, address rateStrategyAddress)
     external;
 
-  function setConfiguration(address reserve, uint256 configuration) external;
-
   /**
    * @dev Returns the normalized income normalized income of the reserve
    * @param asset The address of the underlying asset of the reserve

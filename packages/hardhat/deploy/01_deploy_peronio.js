@@ -6,17 +6,24 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
 
-  const usdtAddress = utils.getDeployedContract("USDT", network.name).address;
-  const amUsdtAddress = utils.getDeployedContract(
-    "amUSDT",
+  const usdtContract = utils.getDeployedContract("USDT", network.name);
+  const amUsdtContract = utils.getDeployedContract("amUSDT", network.name);
+  const aaveLendingPool = utils.getDeployedContract(
+    "LendingPool",
     network.name
-  ).address;
+  );
 
   await deploy("Peronio", {
     contract: "ERC20Collateral",
     from: deployer,
     log: true,
-    args: ["Peronio", "PER", usdcAddress],
+    args: [
+      "Peronio Fake",
+      "PER",
+      usdtContract.address,
+      amUsdtContract.address,
+      aaveLendingPool.address,
+    ],
   });
 };
 

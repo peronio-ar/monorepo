@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
+import "@openzeppelin/contracts_latest/utils/math/SafeMath.sol";
 import "@openzeppelin/contracts_latest/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts_latest/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts_latest/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts_latest/access/Ownable.sol";
-import "@openzeppelin/contracts_latest/utils/math/SafeMath.sol";
 
 import "./uniswap/interfaces/IUniswapV2Router01.sol";
 
-import "./interfaces/IAaveIncentivesController.sol";
-import "./interfaces/ILendingPool.sol";
+import "./aave/interfaces/IAaveIncentivesController.sol";
+import "./aave/interfaces/ILendingPool.sol";
 
 contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     using SafeMath for uint256;
@@ -28,7 +28,7 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
 
     // Markup
     uint8 public constant markup_decimals = 4;
-    uint public markup = 5 * 10 ** markup_decimals; // 5%
+    uint256 public markup = 5 * 10 ** markup_decimals; // 5%
     
     // Underlying asset address (USDT)
     address public immutable collateral_address;
@@ -43,12 +43,12 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     event Withdrawal(address to, uint collateralAmount, uint tokenAmount);
 
     // Collateral without decimals
-    constructor(string memory name_, string memory symbol_, address collateral_address_, address collateral_aave_address_) ERC20(name_, symbol_) {
+    constructor(string memory name_, string memory symbol_, address collateral_address_, address collateral_aave_address_, address lending_pool_address_) ERC20(name_, symbol_) {
         // WMatic ERC20 address
         wmatic_address = 0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270;
 
         // AAVE Lending Pool Address
-        lending_pool_address = 0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf;
+        lending_pool_address = lending_pool_address_;
 
         // Collateral and aaToken addresses
         collateral_address = collateral_address_; //USDT
@@ -68,31 +68,36 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     }
     
     // Sets initial minting. Cna only be runned once
-    function initiliaze(uint collateral, uint256 starting_ratio) public {
+    function initiliaze(uint256 collateral, uint256 starting_ratio) public {
         require(!initialized, 'Contract already initialized');
         IERC20 collateralContract = IERC20(collateral_address);
         
         require(ERC20(collateral_address).decimals() == decimals(), 'Decimals from collateral and this ERC20 must match');
         
-        collateralContract.safeTransferFrom(msg.sender, address(this), collateral);
-        _mint(msg.sender, starting_ratio.mul(collateral));
+        // Get USDT from user
+        collateralContract.safeTransferFrom(_msgSender(), address(this), collateral);
+        
+        // Zaps into amUSDT
+        zapCollateral(collateral);
+
+        _mint(_msgSender(), starting_ratio.mul(collateral));
         initialized = true;
-        emit Initialized(msg.sender, collateral, starting_ratio);
+        emit Initialized(_msgSender(), collateral, starting_ratio);
     }
     
     // Receive Collateral token and mints the proportional tokens
-    function mint(address to, uint amount) public { //Amount for this ERC20
+    function mint(address to, uint256 amount) public { //Amount for this ERC20
         // Calculate buying price (Collateral ratio + Markup)
         uint collateral_amount = buyingPrice() * amount / 10 ** decimals();
 
         // Transfer Collateral Token (USDT) to this contract
-        IERC20(collateral_address).safeTransferFrom(msg.sender, address(this), collateral_amount);
+        IERC20(collateral_address).safeTransferFrom(_msgSender(), address(this), collateral_amount);
 
         // Zaps collateral into Collateral AAVE Token amUSDT
         zapCollateral(amount);
 
         _mint(to, amount);
-        emit Minted(msg.sender, collateral_amount, amount);
+        emit Minted(_msgSender(), collateral_amount, amount);
     }
     
     // Receives Main token burns it and returns Collateral Token proportionally
@@ -107,19 +112,23 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
         IERC20(collateral_address).safeTransfer(to, collateralAmount);
 
         //Burn tokens
-        _burn(msg.sender, amount);
+        _burn(_msgSender(), amount);
 
-        emit Withdrawal(msg.sender, collateralAmount, amount);
+        emit Withdrawal(_msgSender(), collateralAmount, amount);
     }
 
     // Zaps collateral into Collateral AAVE Token amUSDT
     function zapCollateral(uint amount) private {
         // Deposit USDT to amUSDT
+        IERC20(collateral_address).approve(lending_pool_address, amount);
+        ILendingPool(lending_pool_address).deposit(collateral_address, amount, address(this), 0);
     }
 
     // Claim USDT in exchange of AAVE Token amUSDT
     function unzapCollateral(uint amount) private {
         // Withdraw USDT in exchange of me giving amUSDT
+        IERC20(collateral_aave_address).approve(lending_pool_address, amount);
+        ILendingPool(lending_pool_address).withdraw(collateral_address, amount, address(this));
     }
     
     // Sets markup for minting function
@@ -133,19 +142,19 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     }
     
     // Gets current ratio: Collateral Balance in vault / Total Supply
-    function collateralRatio() public view returns (uint){
-        return (collateralBalance().mul(10) ** decimals()) / this.totalSupply();
+    function collateralRatio() public view returns (uint256){
+        return (collateralBalance().mul(10) ** decimals()).div(this.totalSupply());
     }
 
     // Gets current ratio: Total Supply / Collateral Balance in vault
-    function collateralPrice() public view returns (uint) {
-        return (this.totalSupply().mul(10) ** decimals()) / collateralBalance();
+    function collateralPrice() public view returns (uint256) {
+        return (this.totalSupply().mul(10) ** decimals()).div(collateralBalance());
     }
 
     // Gets current ratio: collateralRatio + markup
     function buyingPrice() public view returns (uint256) {
         uint base_price = collateralRatio();
-        uint fee = (base_price.mul(markup)) / (10 ** (markup_decimals + 2));
+        uint fee = (base_price.mul(markup)).div(10 ** (markup_decimals + 2));
         return base_price + fee;
     }
 
@@ -187,7 +196,7 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
             // Approve Transfer _amount usdt to lending pool
             IERC20(collateral_address).safeApprove(lending_pool_address, newBalance);
             // then we need to deposit it into the lending pool
-            ILendingPool(lending_pool_address).deposit(collateral_address, newBalance, address(this), 0);
+            zapCollateral(newBalance);
         }
     }
 }

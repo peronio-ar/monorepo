@@ -18,32 +18,47 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     console.info("USDT Token detected");
     console.info("Skipping USDT mock contract deploy");
 
-    const usdtArtifact = await getArtifact("USDTMock");
+    const erc20Artifact = await getArtifact("ERC20Mock");
 
     // Save Deployment
+
+    console.info("network.config:");
+    console.dir(network.config);
     save(
       "USDT",
-      Object.assign({ address: network.config.usdToken }, usdtArtifact)
+      Object.assign({ address: network.config.usdtToken }, erc20Artifact)
     );
     save(
       "amUSDT",
-      Object.assign({ address: network.config.amUsdtToken }, usdtArtifact)
+      Object.assign({ address: network.config.amUsdtToken }, erc20Artifact)
+    );
+    save(
+      "LendingPool",
+      Object.assign({ address: network.config.aaveLendingPool }, erc20Artifact)
     );
     return;
   }
 
+  // Deploy Mock Contracts
   await deploy("USDT", {
-    contract: "USDCMock",
+    contract: "ERC20Mock",
     from: deployer,
     log: true,
-    args: [ethers.utils.parseUnits("10000", 6)],
+    args: ["USDT Mock", "USDT", ethers.utils.parseUnits("10000", 6)],
   });
 
-  await deploy("amUSDT", {
-    contract: "USDCMock",
+  const amUSDT = await deploy("amUSDT", {
+    contract: "ERC20Mock",
     from: deployer,
     log: true,
-    args: [0],
+    args: ["amUSDT Mock", "amUSDT", 0],
+  });
+
+  await deploy("LendingPool", {
+    contract: "LendingPoolMock",
+    from: deployer,
+    log: true,
+    args: [amUSDT.address],
   });
 };
-module.exports.tags = ["YourContract", "USDT"];
+module.exports.tags = ["USDT", "amUSDT", "LendingPool"];
