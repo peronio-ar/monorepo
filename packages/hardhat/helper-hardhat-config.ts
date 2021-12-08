@@ -26,11 +26,15 @@ const networkConfig: INetworkConfig = {
 interface IDefaultValues {
   collateralAmount: BigNumber;
   collateralRatio: number;
+  collateralStartingLiquidity: number;
 }
 
 const defaultValues: IDefaultValues = {
-  collateralAmount: ethers.utils.parseUnits('1', 6),
+  collateralAmount: ethers.utils.parseUnits(process.env.COLLATERAL_AMOUNT, 6),
   collateralRatio: parseFloat(process.env.COLLATERAL_RATIO || '1'),
+  collateralStartingLiquidity: parseFloat(
+    process.env.LIQUIDITY_STARTING_AMOUNT || '0.1'
+  ),
 };
 
 const developmentChains = ['hardhat', 'localhost'];

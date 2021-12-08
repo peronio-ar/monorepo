@@ -14,27 +14,27 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     ]);
   }
 
-  if (network.config.usdtToken) {
-    console.info("USDT Token detected");
+  if (network.name === "matic") {
+    console.info("Polygon Network selected");
     console.info("Skipping USDT mock contract deploy");
 
     const erc20Artifact = await getArtifact("ERC20Mock");
 
     // Save Deployment
-
-    console.info("network.config:");
-    console.dir(network.config);
     save(
       "USDT",
-      Object.assign({ address: network.config.usdtToken }, erc20Artifact)
+      Object.assign({ address: process.env.USDT_ADDRESS }, erc20Artifact)
     );
     save(
       "amUSDT",
-      Object.assign({ address: network.config.amUsdtToken }, erc20Artifact)
+      Object.assign({ address: process.env.AMUSDT_ADDRESS }, erc20Artifact)
     );
     save(
       "LendingPool",
-      Object.assign({ address: network.config.aaveLendingPool }, erc20Artifact)
+      Object.assign(
+        { address: process.env.LENDING_POOL_ADDRESS },
+        erc20Artifact
+      )
     );
     return;
   }

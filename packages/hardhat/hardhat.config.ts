@@ -1,4 +1,3 @@
-// import { task } from 'hardhat/config';
 import 'dotenv/config';
 
 // import utils from 'ethers';
@@ -13,7 +12,8 @@ import '@eth-optimism/hardhat-ovm';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-etherscan';
 
-import './tasks/peronio.js';
+import './tasks/peronio';
+import './tasks/polygonscan';
 
 //
 // Select the network you want to deploy to here:

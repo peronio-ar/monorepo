@@ -18,8 +18,8 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
     from: deployer,
     log: true,
     args: [
-      "Peronio Fake",
-      "PER",
+      process.env.TOKEN_NAME,
+      process.env.TOKEN_SYMBOL,
       usdtContract.address,
       amUsdtContract.address,
       aaveLendingPool.address,

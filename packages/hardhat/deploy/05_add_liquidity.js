@@ -39,19 +39,6 @@ module.exports = async ({ deployments, network }) => {
   await usdt.approve(routerArtifact.address, totalUSDT);
   await peronio.approve(routerArtifact.address, totalPER);
 
-  console.info("DEBUG");
-  console.dir({
-    usdtAddress: usdtArtifact.address,
-    amUsdtAddress: amUsdtArtifact.address,
-    peronioAddress: peronioArtifact.address,
-
-    totalUSDT,
-    totalPER,
-    totalUSDT,
-    totalPER,
-    deployer,
-  });
-
   await router.addLiquidity(
     usdtArtifact.address,
     peronioArtifact.address,
@@ -64,6 +51,19 @@ module.exports = async ({ deployments, network }) => {
   );
 
   console.info("Added Liquidity");
+
+  console.info("Results");
+  console.dir({
+    usdtAddress: usdtArtifact.address,
+    amUsdtAddress: amUsdtArtifact.address,
+    peronioAddress: peronioArtifact.address,
+
+    totalUSDT,
+    totalPER,
+    totalUSDT,
+    totalPER,
+    deployer,
+  });
 };
 
 module.exports.tags = ["Pair"];

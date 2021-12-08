@@ -138,17 +138,17 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     
     // Gets current Collateral Balance (USDT) in vault
     function collateralBalance() public view returns (uint256){
-        return ERC20(collateral_address).balanceOf(address(this));
+        return ERC20(collateral_aave_address).balanceOf(address(this));
     }
     
     // Gets current ratio: Collateral Balance in vault / Total Supply
     function collateralRatio() public view returns (uint256){
-        return (collateralBalance().mul(10) ** decimals()).div(this.totalSupply());
+        return collateralBalance().mul(10 ** decimals()).div(this.totalSupply());
     }
 
     // Gets current ratio: Total Supply / Collateral Balance in vault
     function collateralPrice() public view returns (uint256) {
-        return (this.totalSupply().mul(10) ** decimals()).div(collateralBalance());
+        return (this.totalSupply().mul(10 ** decimals())).div(collateralBalance()); 
     }
 
     // Gets current ratio: collateralRatio + markup
