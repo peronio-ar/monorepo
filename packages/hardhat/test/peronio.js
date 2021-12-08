@@ -176,6 +176,8 @@ describe("Contracts Setup", function () {
       initialCollateralLiquidity * collateralRatio
     ).toString();
 
+    const ratioMarkedUp = parseFloat(((1 / collateralRatio) * 1.05).toFixed(6));
+
     it("Should be initialized", async function () {
       expect(await peronioContract.initialized()).to.equal(true);
     });
@@ -209,18 +211,16 @@ describe("Contracts Setup", function () {
           await peronioContract.collateralRatio(),
           6
         );
-        console.info("collateralRatio", parseFloat(val));
         expect(parseFloat(val)).to.equal(1 / collateralRatio);
       }
     );
 
-    it("buyingPrice should be equal to " + collateralRatio, async function () {
+    it("buyingPrice should be equal to " + ratioMarkedUp, async function () {
       const val = ethers.utils.formatUnits(
         await peronioContract.buyingPrice(),
         6
       );
-      console.info("buyingPrice", parseFloat(val));
-      expect(parseFloat(val)).to.equal(collateralRatio);
+      expect(parseFloat(val)).to.equal(ratioMarkedUp);
     });
   });
 });
