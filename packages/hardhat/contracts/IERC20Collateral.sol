@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.2;
+
 interface IERC20Collateral {
   function aave_incentive_address (  ) external view returns ( address );
   function allowance ( address owner, address spender ) external view returns ( uint256 );
@@ -22,11 +25,11 @@ interface IERC20Collateral {
   function markup (  ) external view returns ( uint256 );
   function markup_decimals (  ) external view returns ( uint8 );
   function mint ( address to, uint256 amount ) external;
-  function name (  ) external view returns ( string );
+  function name (  ) external view returns ( string memory );
   function owner (  ) external view returns ( address );
   function renounceOwnership (  ) external;
   function setMarkup ( uint16 val ) external;
-  function symbol (  ) external view returns ( string );
+  function symbol (  ) external view returns ( string memory );
   function totalSupply (  ) external view returns ( uint256 );
   function transfer ( address recipient, uint256 amount ) external returns ( bool );
   function transferFrom ( address sender, address recipient, uint256 amount ) external returns ( bool );
