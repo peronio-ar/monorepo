@@ -16,14 +16,17 @@ module.exports = async ({ deployments, network }) => {
     contract: "UniswapV2Factory",
     from: deployer,
     log: true,
-    args: [peronioAddress],
+    args: [deployer],
   });
 
   const routerContract = await deploy("Router", {
     contract: "UniswapV2Router02",
     from: deployer,
     log: true,
-    args: [factoryContract.address, peronioAddress],
+    args: [
+      factoryContract.address,
+      "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270",
+    ],
   });
 };
 
