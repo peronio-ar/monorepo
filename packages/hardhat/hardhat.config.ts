@@ -3,14 +3,13 @@ import 'dotenv/config';
 // import utils from 'ethers';
 import fs from 'fs';
 
-import '@nomiclabs/hardhat-waffle';
-import '@tenderly/hardhat-tenderly';
-
 import 'hardhat-deploy';
-
+import '@tenderly/hardhat-tenderly';
 import '@eth-optimism/hardhat-ovm';
+import '@nomiclabs/hardhat-waffle';
 import '@nomiclabs/hardhat-ethers';
 import '@nomiclabs/hardhat-etherscan';
+import 'hardhat-interface-generator';
 
 import './tasks/peronio';
 import './tasks/polygonscan';

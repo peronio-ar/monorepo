@@ -16,8 +16,8 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    // External Contracts
-    IAaveIncentivesController public immutable aaveContract; // Aave Contract
+    // Aave
+    address public immutable aave_incentive_address; // Aave Incentive Contract Address
 
     // Local Router
     address public immutable uniswap_router_address;
@@ -58,7 +58,7 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
         uniswap_router_address = 0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff;
 
         // AAVE Incentives Controller
-        aaveContract = IAaveIncentivesController(0x357D51124f59836DeD84c8a1730D72B749d8BC23);
+        aave_incentive_address = 0x357D51124f59836DeD84c8a1730D72B749d8BC23;
 
     }
 
@@ -160,6 +160,7 @@ contract ERC20Collateral is ERC20, ERC20Burnable, Ownable {
 
     // Claim AAVE Rewards (WMATIC) into this contract
     function claimAaveRewards() public onlyOwner {
+        IAaveIncentivesController aaveContract = IAaveIncentivesController(aave_incentive_address);
         // we're only checking for one asset (Token which is an interest bearing amToken)
         address[] memory rewardsPath = new address[](1);
                 rewardsPath[0] = collateral_aave_address;
