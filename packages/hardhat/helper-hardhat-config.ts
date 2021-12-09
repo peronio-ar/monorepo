@@ -32,8 +32,9 @@ interface IDefaultValues {
 const defaultValues: IDefaultValues = {
   collateralAmount: ethers.utils.parseUnits(process.env.COLLATERAL_AMOUNT, 6),
   collateralRatio: parseFloat(process.env.COLLATERAL_RATIO || '1'),
-  collateralStartingLiquidity: parseFloat(
-    process.env.LIQUIDITY_STARTING_AMOUNT || '0.1'
+  collateralStartingLiquidity: ethers.utils.parseUnits(
+    process.env.LIQUIDITY_STARTING_AMOUNT,
+    6
   ),
 };
 

@@ -44,7 +44,7 @@
     "compile": "hardhat compile",
     "console": "hardhat console",
     "deploy": "hardhat deploy --export-all ../../../frontend-lite/src/contracts/hardhat_contracts.json",
-    "postdeploy": "hardhat run scripts/publish.js && hardhat run scripts/polygonscan.js",
+    "postdeploy": "hardhat run scripts/publish.js && hardhat run scripts/polygonscan.js --network matic",
     "watch": "node scripts/watch.js",
     "accounts": "hardhat accounts",
     "balance": "hardhat balance",

@@ -39,8 +39,8 @@ module.exports = async ({ deployments, network }) => {
   }
 
   addresses.pair = await contracts.factory.getPair(
-    contracts.usdt.address,
-    contracts.peronio.address
+    addresses.usdt,
+    addresses.peronio
   );
 
   const pairArtifact = await getArtifact("UniswapV2Pair");

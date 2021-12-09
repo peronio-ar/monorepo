@@ -5,7 +5,7 @@ const { ethers } = require("hardhat");
 const { defaultValues } = require("../helper-hardhat-config");
 
 module.exports = async ({ deployments, network }) => {
-  console.info("Adding Liquidity");
+  console.info("Liquidity Pool");
   const { get } = deployments;
   const { deployer } = await getNamedAccounts();
 
@@ -30,15 +30,18 @@ module.exports = async ({ deployments, network }) => {
   );
 
   // Set values
-  const totalUSDT = defaultValues.collateralAmount;
-  const totalPER = defaultValues.collateralAmount.mul(
+  const totalUSDT = defaultValues.collateralStartingLiquidity;
+  const totalPER = defaultValues.collateralStartingLiquidity.mul(
     defaultValues.collateralRatio
   );
 
   // Set approval limit
+  console.info("Approving USDT...");
   await usdt.approve(routerArtifact.address, totalUSDT);
+  console.info("Approving PER...");
   await peronio.approve(routerArtifact.address, totalPER);
 
+  console.info("Adding Liquidity...");
   await router.addLiquidity(
     usdtArtifact.address,
     peronioArtifact.address,
@@ -52,16 +55,14 @@ module.exports = async ({ deployments, network }) => {
 
   console.info("Added Liquidity");
 
-  console.info("Results");
+  console.info("---- RESULTS ----");
   console.dir({
     usdtAddress: usdtArtifact.address,
     amUsdtAddress: amUsdtArtifact.address,
     peronioAddress: peronioArtifact.address,
 
-    totalUSDT,
-    totalPER,
-    totalUSDT,
-    totalPER,
+    totalUSDT: parseFloat(ethers.utils.formatUnits(totalUSDT, 6)),
+    totalPER: parseFloat(ethers.utils.formatUnits(totalPER, 6)),
     deployer,
   });
 };

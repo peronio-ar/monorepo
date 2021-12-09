@@ -14,9 +14,11 @@ task('polygonscan', 'Verify contract on Polyscan').setAction(
       );
     }
 
+    const usdtAddress = (await deployments.get('USDT')).address;
     const peronioAddress = (await deployments.get('Peronio')).address;
     const factoryAddress = (await deployments.get('Factory')).address;
     const routerAddress = (await deployments.get('Router')).address;
+    const pairAddress = (await deployments.get('Router')).address;
     const { deployer } = await getNamedAccounts();
 
     console.info('Publishing Peronio to Polygonscan');
@@ -31,7 +33,7 @@ task('polygonscan', 'Verify contract on Polyscan').setAction(
           process.env.LENDING_POOL_ADDRESS,
         ],
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.reason);
     }
 
@@ -41,7 +43,7 @@ task('polygonscan', 'Verify contract on Polyscan').setAction(
         address: factoryAddress,
         constructorArguments: [deployer],
       });
-    } catch (e) {
+    } catch (e: any) {
       console.error(e.reason);
     }
 
@@ -54,7 +56,21 @@ task('polygonscan', 'Verify contract on Polyscan').setAction(
           '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
         ],
       });
-    } catch (e) {
+    } catch (e: any) {
+      console.error(e.reason);
+    }
+
+    console.info('Publishing Uniswap Pair to Polygonscan');
+    try {
+      const tokens =
+        usdtAddress < peronioAddress
+          ? [usdtAddress, peronioAddress]
+          : [peronioAddress, usdtAddress];
+      await run('verify:verify', {
+        address: pairAddress,
+        constructorArguments: [tokens[0], tokens[1]],
+      });
+    } catch (e: any) {
       console.error(e.reason);
     }
   }
