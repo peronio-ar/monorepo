@@ -1,6 +1,5 @@
 // deploy/04_initialize_peronio.js
 const utils = require("../utils");
-const fs = require("fs");
 const { ethers } = require("hardhat");
 const { defaultValues } = require("../helper-hardhat-config");
 

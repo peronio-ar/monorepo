@@ -26,7 +26,6 @@ interface IERC20Collateral {
   function markup_decimals (  ) external view returns ( uint8 );
   function mint ( address to, uint256 amount ) external;
   function name (  ) external view returns ( string memory );
-  function owner (  ) external view returns ( address );
   function renounceOwnership (  ) external;
   function setMarkup ( uint16 val ) external;
   function symbol (  ) external view returns ( string memory );

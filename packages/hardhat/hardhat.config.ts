@@ -12,6 +12,7 @@ import '@nomiclabs/hardhat-etherscan';
 import 'hardhat-interface-generator';
 
 import './tasks/peronio';
+import './tasks/pair';
 import './tasks/polygonscan';
 
 //

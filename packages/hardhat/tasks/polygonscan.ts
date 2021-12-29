@@ -30,7 +30,7 @@ task('polygonscan', 'Verify contract on Polyscan').setAction(
           process.env.TOKEN_SYMBOL,
           process.env.USDT_ADDRESS,
           process.env.AMUSDT_ADDRESS,
-          process.env.LENDING_POOL_ADDRESS,
+          process.env.AAVE_LENDING_POOL_ADDRESS,
         ],
       });
     } catch (e: any) {

@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.2;
 
-interface ERC20Collateral {
-    function claimAaveRewards() external;
-    function harvestMaticIntoToken() external;
-}
+import "./ERC20Collateral.sol";
 
 contract AutoCompounder {
     ERC20Collateral peronio;

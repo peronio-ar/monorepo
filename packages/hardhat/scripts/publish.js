@@ -6,6 +6,7 @@ const deploymentsDir = "./deployments";
 const publishDir = "../react-app/src/contracts";
 
 function publishContract(contractName, networkName) {
+  return "Fix locked publish!";
   try {
     let contract = fs
       .readFileSync(`${deploymentsDir}/${networkName}/${contractName}.json`)

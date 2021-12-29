@@ -1,20 +1,21 @@
-// deploy/03_create_pair.js
+// deploy/03_create_pairs.js
 const utils = require("../utils");
-const fs = require("fs");
 const { ethers } = require("hardhat");
 
 module.exports = async ({ deployments, network }) => {
-  console.info("Creating Pair");
+  console.info("Creating Pairs");
   const { getArtifact, save } = deployments;
 
   const addresses = {
     usdt: utils.getDeployedContract("USDT", network.name).address,
+    wmatic: utils.getDeployedContract("WMATIC", network.name).address,
     peronio: utils.getDeployedContract("Peronio", network.name).address,
     factory: utils.getDeployedContract("Factory", network.name).address,
     router: utils.getDeployedContract("Router", network.name).address,
   };
   const contracts = {
     usdt: await ethers.getContractAt("IERC20", addresses.usdt),
+    wmatic: await ethers.getContractAt("ERC20Collateral", addresses.wmatic),
     peronio: await ethers.getContractAt("ERC20Collateral", addresses.peronio),
     factory: await ethers.getContractAt("UniswapV2Factory", addresses.factory),
     router: await ethers.getContractAt("UniswapV2Router02", addresses.factory),
@@ -32,24 +33,43 @@ module.exports = async ({ deployments, network }) => {
 
   try {
     await contracts.factory.createPair(addresses.usdt, addresses.peronio);
-    console.info("Created pair PER/USDT");
+    console.info("Created pair PE/USDT");
+
+    await contracts.factory.createPair(addresses.wmatic, addresses.peronio);
+    console.info("Created pair PE/WMATIC");
+
+    addresses.pairPEUSDT = await contracts.factory.getPair(
+      addresses.usdt,
+      addresses.peronio
+    );
+
+    addresses.pairPEWMATIC = await contracts.factory.getPair(
+      addresses.wmatic,
+      addresses.peronio
+    );
   } catch (e) {
     console.error("Error while trying to create pair");
     throw e;
   }
 
-  addresses.pair = await contracts.factory.getPair(
-    addresses.usdt,
-    addresses.peronio
-  );
+  if (addresses.pair === "0x0000000000000000000000000000000000000000") {
+    throw "Pair not found";
+  }
 
   const pairArtifact = await getArtifact("UniswapV2Pair");
 
-  console.info("Pair created on address:", addresses.pair);
-  // Save Deployment
-  save(
+  console.info("Pair PE/USDT created on address:", addresses.pairPEUSDT);
+  console.info("Pair PE/WMATIC created on address:", addresses.pairPEWMATIC);
+
+  // Save Deployments
+  await save(
     "PairPeronioUSDT",
-    Object.assign({ address: addresses.pair }, pairArtifact)
+    Object.assign({ address: addresses.pairPEUSDT }, pairArtifact)
+  );
+
+  await save(
+    "PairPeronioWMATIC",
+    Object.assign({ address: addresses.pairPEWMATIC }, pairArtifact)
   );
 };
 

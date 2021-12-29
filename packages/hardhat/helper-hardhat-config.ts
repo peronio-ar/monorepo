@@ -27,13 +27,20 @@ interface IDefaultValues {
   collateralAmount: BigNumber;
   collateralRatio: number;
   collateralStartingLiquidity: number;
+  wmaticStartingLiquidity: number;
 }
+
+const collateralRatio = parseFloat(process.env.COLLATERAL_RATIO || '1');
 
 const defaultValues: IDefaultValues = {
   collateralAmount: ethers.utils.parseUnits(process.env.COLLATERAL_AMOUNT, 6),
-  collateralRatio: parseFloat(process.env.COLLATERAL_RATIO || '1'),
+  collateralRatio: collateralRatio,
   collateralStartingLiquidity: ethers.utils.parseUnits(
-    process.env.LIQUIDITY_STARTING_AMOUNT,
+    process.env.LIQUIDITY_USDT_STARTING_AMOUNT,
+    6
+  ),
+  wmaticStartingLiquidity: ethers.utils.parseUnits(
+    process.env.LIQUIDITY_WMATIC_STARTING_AMOUNT,
     6
   ),
 };

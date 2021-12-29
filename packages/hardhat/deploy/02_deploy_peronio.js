@@ -1,6 +1,5 @@
-// deploy/01_deploy_contracts.js
+// deploy/02_deploy_contracts.js
 const utils = require("../utils");
-const { ethers } = require("hardhat");
 
 module.exports = async ({ getNamedAccounts, deployments, network }) => {
   const { deploy } = deployments;
@@ -8,6 +7,7 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
 
   const usdtContract = utils.getDeployedContract("USDT", network.name);
   const amUsdtContract = utils.getDeployedContract("amUSDT", network.name);
+  const routerContract = utils.getDeployedContract("Router", network.name);
   const aaveLendingPool = utils.getDeployedContract(
     "LendingPool",
     network.name
@@ -23,6 +23,9 @@ module.exports = async ({ getNamedAccounts, deployments, network }) => {
       usdtContract.address,
       amUsdtContract.address,
       aaveLendingPool.address,
+      process.env.WMATIC_ADDRESS,
+      routerContract.address,
+      process.env.AAVE_INCENTIVE_ADDRESS,
     ],
   });
 };

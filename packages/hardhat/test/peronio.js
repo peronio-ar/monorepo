@@ -10,9 +10,9 @@ const initialCollateralLiquidity = 100;
 
 describe("Contracts Setup", function () {
   // ERC20 Mocks
-  let usdtContract, amUsdtContract;
+  let usdtContract, amUsdtContract, wMaticContract;
   // Aave
-  let lendingContract;
+  let lendingContract, incentivesContract;
   // Peronio
   let peronioContract;
   // Uniswap
@@ -35,6 +35,17 @@ describe("Contracts Setup", function () {
       amUsdtContract = await aUSDTMock.deploy(
         "amUSDT Mock",
         "amUSDT",
+        ethers.utils.parseUnits("10000", 6)
+      );
+      return;
+    });
+
+    it("Should deploy WMATIC Mock", async function () {
+      const wMaticMock = await ethers.getContractFactory("ERC20Mock");
+
+      wMaticContract = await wMaticMock.deploy(
+        "WMATIC Mock",
+        "WMATIC",
         ethers.utils.parseUnits("10000", 6)
       );
       return;
@@ -77,6 +88,37 @@ describe("Contracts Setup", function () {
     });
   });
 
+  describe("IncentivesControllerMock", function () {
+    it("Should deploy AAVE Incentives Controller", async function () {
+      const IncentivesController = await ethers.getContractFactory(
+        "AaveIncentivesControllerMock"
+      );
+
+      incentivesContract = await IncentivesController.deploy();
+      return;
+    });
+  });
+
+  describe("Deploy Uniswap", function () {
+    it("Should deploy UniswapV2Factory", async function () {
+      const [owner] = await ethers.getSigners();
+      const deployer = owner.address;
+      const Factory = await ethers.getContractFactory("UniswapV2Factory");
+      factoryContract = await Factory.deploy(deployer);
+
+      return factoryContract;
+    });
+
+    it("Should deploy UniswapV2Router02", async function () {
+      const Router = await ethers.getContractFactory("UniswapV2Router02");
+      routerContract = await Router.deploy(
+        factoryContract.address,
+        wMaticContract.address
+      );
+      return routerContract;
+    });
+  });
+
   describe("Deploy Peronio", function () {
     it("Should deploy UniswapV2Factory", async function () {
       const ERC20CollateralContract = await ethers.getContractFactory(
@@ -87,26 +129,12 @@ describe("Contracts Setup", function () {
         "PERT",
         usdtContract.address,
         amUsdtContract.address,
-        lendingContract.address
+        lendingContract.address,
+        wMaticContract.address,
+        routerContract.address,
+        incentivesContract.address
       );
       return;
-    });
-  });
-
-  describe("Deploy Uniswap", function () {
-    it("Should deploy UniswapV2Factory", async function () {
-      const Factory = await ethers.getContractFactory("UniswapV2Factory");
-      factoryContract = await Factory.deploy(peronioContract.address);
-      return factoryContract;
-    });
-
-    it("Should deploy UniswapV2Router02", async function () {
-      const Router = await ethers.getContractFactory("UniswapV2Router02");
-      routerContract = await Router.deploy(
-        factoryContract.address,
-        peronioContract.address
-      );
-      return routerContract;
     });
   });
 
